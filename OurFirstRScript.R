@@ -61,7 +61,7 @@ stripchart(y$weight_g, xlab="Animal weigth (g)", method="stack")
 boxplot(y$weight_g, ylab="Animal weigth (g)")
 boxplot(y$weight_g ~ I(y$footlength_mm + y$DOY), varwidth=TRUE, ylab="Animal weigth (g)")
 boxplot(y$weight_g ~ y$sex + y$age, ylab="Animal weigth (g)", varwidth=TRUE)
-#decido  con varwidth di non fare le scatole tutte uguali, mentre le restringo
+#decido  con varwidth=TRUE di non fare le scatole tutte uguali, mentre le restringo
 #o le allargo a seconda dei dati che ho in quella categoria
 #grazie a questo posso capire ad esempio che ci sono troppi pochi dati
 #sulle femmine gravide per poter fare delle considerazioni.

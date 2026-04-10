@@ -24,7 +24,8 @@ How often do you get a 6?
 ```{r}
 RollDie <- function(n) sample(1:6, n, replace = TRUE)
 d1 <- RollDie(n = 50)
-sum(d1 == 6)
+sum(d1 == 6) #il doppio simbolo di uguale vuol dire che voglio proprio 
+#che quel d1 sia proprio uguale a 6.
 sum(d1 == 6)/50
 ```
 
@@ -47,7 +48,7 @@ for (n in 1:500) {
 plot(probs)
 abline(h=1/6)
 ```
-
+abline va runnato insieme al plot. 
 Please remember that our definition of probability is 'long-run relative frequency'.   
 If we repeat an experiment (like flipping a coin or rolling a dice) a large number of times and tabulate the outcomes, the relative frequencies will 'converge' to the probabilities of each outcome.   
 This is the basic principles of Monte Carlo Simulations - Monte Carlo Simulation means using a computer to repeatedly carry out a random experiment and keeping track of the outcomes. That's what we just did!!
@@ -67,7 +68,7 @@ Now we can roll two dice:
 sample(1:6, size = 1, replace = TRUE)
 sample(1:6, size = 1, replace = TRUE)
 ```
-
+nel blocco di testo non bisogna mettere il cancelletto, nei "chunk", spazi di calcolo, si.
 
 How often do we get the same number if we roll 2 dice?
 
@@ -83,7 +84,9 @@ sum(roll1 == roll2)
 # relative frequency
 sum(roll1 == roll2)/100
 ```
-
+consiglio di runnare tutto il chunk insieme.
+abbiamo calcolato la probabilità di ottenere lo stesso risultato
+lanciando due dadi.
 
 ```{r}
 roll1 <- vector("list", 500)
@@ -207,11 +210,13 @@ The marginal probability of capturing an adult snow vole is:
 library(dplyr)
 
 age.marginal.df <- 
-  y %>% 
+  y %>% #prende y, li raggruppa per età, calcola n giovani ed n adulti
+#e poi posso calcolare la proporzione sul numero totale di animali
+#è necessario il pacchetto dplyr
   group_by(age) %>%
-  summarise(n = n()) %>%
+  summarise(n = n()) %>% #la enne interna significa "conta"
   ungroup() %>%
-  mutate(prop = n/sum(n))
+  mutate(prop = n/sum(n)) #aggiungi una colonna al dataframe, e la chiami prop
 age.marginal.df
 ```
 
@@ -266,4 +271,6 @@ i.e. 32 adult females out of a total of 79 adults.
 
 Please note that if variables are not conditionally independent, their joint distribution is not equal to P(A)*P(B), 
 but rather by P(B)*P(A | B). Check this by multiplying the conditional probability obtained here by the marginal probability of being an adult (B). Compare with the joint.df table.
+il triangolo rovesciato serve per runnare tutti i chunk precedenti, utile
+se ad esempio abbiamo fatto confusionare tra i dati e dobbiamo controllarli.
 
