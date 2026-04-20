@@ -24,19 +24,22 @@ dati <- read.csv("data/captures.csv", sep=";")
 # Calculating and plotting CIs with the traditional method
 
 The function `CI` in the `Rmisc` package produces confidence intervals for the mean using the traditional method:
-
+si deve specificare la colonna di dati che vogliamo considerare
 ```{r}
 CI(dati$weight_g, ci=0.95)
 ```
 
 So what?? How can we fix that??
+puliamo il dataset...NA va usato con cautela perchè in alcuni casi
+se non correttamente impostato ci cancellerebbe tutti i dati di tutte le 
+colonne
 
 ```{r}
 CI(na.omit(dati$weight_g), ci=0.95)
 ```
 
 What about the CIs for different group of animals?
-
+la tilde vuol dire "tenendo conto del sesso degli animali"
 ```{r}
 dati2 <- na.omit(dati)
 group.CI(weight_g ~ sex,
@@ -84,7 +87,9 @@ ggplot(intervalli, aes(x=sex, y=variabile.mean, colour=sex)) +
     geom_line() +
     geom_point()
 ```
-
+le femmine sembrano avere un piede più piccolo dei maschi, e minore ampiezza
+degli intervalli di confidenza. Visti questi risultati possiamo fare un test
+di ipotesi.
 
 # Calculating and plotting CIs with the bootstrapping method
 
@@ -95,7 +100,7 @@ boot.data <- boot(dati2$weight_g,
                   function(x,i) mean(x[i]), 
                   R=10000)
 ```
-
+R=10000 è il numero di repliche di campionamento.
 Now we can use the bootstrapped data to calculate the CIs, using the `boot.ci` function:
 
 ```{r}
@@ -110,7 +115,8 @@ Do it on your own:
 * Calculate the bootstrapped intervals for the sex groups
 * Plot the bootstrapped intervals
 
-
+adesso possiamo calcolare gli intervalli di bootstrap separatamente
+per i maschi e per le femmine
 ```{r}
 library(tidyverse)
 dati2 %>%

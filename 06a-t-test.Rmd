@@ -21,14 +21,15 @@ captures %>%
   filter(age=="A") -> adults
 head(adults)
 ```
-
+dawn=alba o tramonto
 ```{r data-grouped}
 adults %>% 
   group_by(animal_id, sex) -> grouped
 grouped %>% 
   arrange(animal_id)
 ```
-
+faccio una sintesi dei miei dati, e voglio che il singolo individuo compaia
+nel dataset una sola volta
 
 ```{r data-individual-weights}
 adults %>% 
@@ -36,7 +37,7 @@ adults %>%
   dplyr::summarise(count=n(), individual.weight = mean(weight_g, na.rm = TRUE)) -> ind.w
 ind.w
 ```
-
+ignoriamo questo blocco di codice perchè abbiamo dplyr
 ```{r, eval=FALSE}
 
 # use this code only if you could not install the dplyr package
@@ -60,7 +61,7 @@ ind.w <- merge(bb, ee, by="animal_id")
 
 
 ## Assumptions
-
+riprendiamo da qui
 ### Normality
 
 There are 5 major tests used:
@@ -81,8 +82,8 @@ Here, we will use the Shapiro-Wilk W test. It is the ratio of two estimates of v
 qqnorm(ind.w$individual.weight); qqline(ind.w$individual.weight, col="red")
 
 ```
-
-#### The Q-Q plot
+la linea rossa rappresenta la rappresentazione teorica di riferimento (normale)
+#### The Q-Q plot (quantile-quantile)
 
 The quantile-quantile (q-q) plot is a graphical technique for determining if two data sets come from populations with a common distribution.   
 A q-q plot is a plot of the quantiles of the first data set against the quantiles of the second data set. By a **quantile**, we mean the **fraction (or percent) of points below the given value**. That is, the 0.3 (or 30%) quantile is the point at which 30% percent of the data fall below and 70% fall above that value.   
@@ -109,7 +110,8 @@ These are the results of the Shapiro-Wilk normality test:
 shapiro.test(ind.w$individual.weight)
 
 ```
-
+W=0.96, molto vicino a uno, molto probabilmente abbiamo a che fare con
+una distribuzione normale
 #### t.test
 
 Test the hypothesis that the individual weights are significantly different from 30 g:
@@ -118,7 +120,11 @@ Test the hypothesis that the individual weights are significantly different from
 ```{r t-test-onesample}
 t.test(ind.w$individual.weight, mu = 30)
 ```
-
+dove mu è il nostro valore di riferimento
+p-value molto basso, i miei dati sono strani rispetto al valore di 30 prece
+dentemente fissato....posso rifiutare l'ipotesi nulla
+l'intervallo di confidenza va da circa 33 a 37, che è un ulteriore conferma
+poichè non comprende 30...tutti i miei animali pesano significativamente di +
 
 ```{r gdl}
 length(na.omit(ind.w$individual.weight))
@@ -177,12 +183,13 @@ shapiro.test(w.m)
 Determination of which two-sample t-test to use is dependent upon first testing the variance assumption (homogeneous or heterogeneous). This requires the use of a F-test which relies on the F-distribution.
 
 #### The F-test
-
+varianza delle femmine/varianza dei maschi.
 Any F-test can be regarded as a **comparison of two variances**. For application, please be aware that the test is so sensitive to the assumption of normality that it would be inadvisable to use it as a routine test for the equality of variances. This is a case where "approximate normality" (which in similar contexts would often be justified using the central limit theorem), is not good enough to make the test procedure approximately valid to an acceptable degree.   
 The test statistic is:
 $$ F = s^2_x/s^2_y $$
 It has an F-distribution with n − 1 and m − 1 degrees of freedom.
-
+il fatto che una dato sia anomalo o meno dipenderà dalla forma di questa 
+distribuzione
 ```{r Fdistributions-plot}
 x <- rnorm(100,0,1)
 curve(df(x, df1=1, df2=1), from=0, to=5, lty=1, ylim=c(0,2))
@@ -191,7 +198,7 @@ curve(df(x, df1=5, df2=2), from=0, to=5, lty=3, add=T)
 curve(df(x, df1=100, df2=1), from=0, to=5, lty=4, add=T)
 curve(df(x, df1=100, df2=100), from=0, to=5, lty=5, add=T)
 ```
-
+esempi di come può essere diversa la curva a seconda dei gradi di libertà e delle dimensioni campionarie.
 
 ```{r vartest}
 
@@ -203,17 +210,17 @@ var(w.f, na.rm = T)/var(w.m, na.rm = T)
 boxplot(ind.w$individual.weight ~ ind.w$sex)
 
 ```
-
+p-value 0.86, dati compatibili con l'ipotesi nulla in cui le varianze sono uguali. A questo punto possiamo fare il t-test per due campioni.
 #### t.test
 
 ```{r t-test-twosamples}
 # ?t.test
 t.test(w.f, w.m,
        var.equal = TRUE,
-       paired = TRUE, 
+       paired = FALSE, 
        alternative = "two.sided") # greater/less
 ```
-
+i dati sono indipendenti, il peso di un individuo maschio x non centra con quello della femmina. P-value= 0.1925, non posso concludere che i pesi siano diversi nei due sessi. Notare che l'intervallo di confidenza è negativo nell'estremo basso e comprende 0 perchè abbiamo testato l'ipotesi che la differenza tra le medie dei campioni sia o meno diversa da 0.
 ![Rejection regions for a two-tailed test](https://www.gironi.it/blog/wp-content/uploads/2018/11/due-code.gif)
 
 ![Rejection region for a one-tailed test](https://www.gironi.it/blog/wp-content/uploads/2018/11/una-coda.gif)
