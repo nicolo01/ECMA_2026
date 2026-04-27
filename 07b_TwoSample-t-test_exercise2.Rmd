@@ -4,7 +4,7 @@ output:
   html_document:
     df_print: paged
 ---
-
+valutazione di un test svolto da più studenti
 # Problem - dilemma of two graders
 
 In order to promote fairness in grading, each application was graded twice by different graders. Based on the grades, can we see if there is a difference between the two graders? The data is
@@ -13,7 +13,9 @@ In order to promote fairness in grading, each application was graded twice by di
 x <- c(3, 0, 5, 2, 5, 5, 5, 4, 4, 5)
 y <- c(2, 1, 4, 1, 4, 3, 3, 2, 3, 5)
 ```
-
+i due vettori non sono più indipendenti, è lo stesso compito che viene valutato
+da due persone diverse. I due valori dei vettori sono riferiti alla stessa
+unità sperimentale che stiamo considerando.
 Clearly there are differences. Are they described by random fluctuations, or is there a bias of one grader over another? 
 Verify the t-test assumptions, and then proceed with the t-test if appropriate. Which is the corresponding non-parametric test? Perfom it and compare the results to the one obtained with the t-test.
 
@@ -37,7 +39,7 @@ shapiro.test(y)
 # homogeneity of variances
 var.test(x,y)
 ```
-
+la novità è paired=true
 ```{r}
 # t-test
 #t-test

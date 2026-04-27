@@ -17,7 +17,7 @@ We must met 3 assumptions:
 ```{r data}
 library(dplyr)
 captures <- read.csv("data/captures.csv", sep=";")
-captures %>% 
+captures %>%  #in funzione
   filter(age=="A") -> adults
 head(adults)
 ```
@@ -30,6 +30,8 @@ grouped %>%
 ```
 faccio una sintesi dei miei dati, e voglio che il singolo individuo compaia
 nel dataset una sola volta
+in precedenza alcuni individui erano stati catturati più volte
+il dataset deve essere quindi modificato prima di poter effettuare un t-test
 
 ```{r data-individual-weights}
 adults %>% 

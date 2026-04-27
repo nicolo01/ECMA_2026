@@ -20,7 +20,7 @@ freq <- c(22, 21, 22, 27, 22, 36)
 probs <- rep(1/6, 6)
 chisq.test(freq, p = probs)
 ```
-
+5 gradi di libertà poichè "6 possibilità -1"
 ```{r independence-test}
 ## chi2 - test of independence
 yesbelt <- c(12813, 647, 359, 42)
@@ -58,7 +58,7 @@ names(chisq.test(rbind(res.fair, res.bias)))
 # Exercices
 
 ## Exercise 1
-
+INDAGINE SULL'ITTIOFAUNA
 A fish survey is done to see if the proportion of fish types is consistent with previous years. Suppose, the 3 types of fish recorded: parrotfish, grouper, tang are historically in a 5:3:4 proportion and in a survey the following counts are found:
 
 ```{r}
@@ -66,7 +66,8 @@ freq <- c(53, 22, 49)
 probs <- c(5/12, 3/12, 4/12)
 chisq.test(freq, p = probs)
 ```
-
+per fare il test del chi-quadro moltiplico le frequenze per le rispettive 
+probabilità. Il test è negativo, quindi non possiamo dire che la proporzione di pesci nel nostro campione nel 2025 sia stata diversa da quella storica.
 
 ## Exercise 2
 
@@ -88,7 +89,7 @@ Xsq
 
 
 ## Exercise 3
-
+esempio più facile da immaginare dal punto di vista biologico
 Latta et al. (2012) collected birds in remnant riparian habitat (areas along rivers in California with mostly native vegetation) and restored riparian habitat (once degraded areas that have had native vegetation re-established). They observed the following numbers (lumping together the less common bird species as "Uncommon"):
 
 ```{r}
@@ -102,9 +103,11 @@ birds_habitats <- data.frame(
 )
 birds_habitats
 ```
-
+quante volte incontriamo queste specie nell'habitat ordinario e in quello 
+ripristinato? le due aree sono diverse..
 ```{r}
 chisq.test(data.frame(birds_habitats$Remnant, birds_habitats$Restored))
 ```
-
+risultato; le differenze che osservo nella mia tabella non sono dovute al caso.
+Infatti ho molti più individui nell'habitat originario che in quello ripristinato, oltre al fatto che cambia molto la composizione.
 ![Very interesting examples and documentation here][http://www.biostathandbook.com/chiind.html]

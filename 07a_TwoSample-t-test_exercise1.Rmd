@@ -31,14 +31,15 @@ qqnorm(y); qqline(y, col="red")
 shapiro.test(x)
 shapiro.test(y)
 ```
-
+i miei punti devono essere abbastanza distribuiti vicino alla linea rossa
 
 ```{r}
 # homogeneity of variances
 var(x)/var(y)
 var.test(x,y)
 ```
-
+anche in questo caso il p-value è buono e possiamo procedere con il nostro
+t-test.
 ```{r}
 #t-test
 t.test(x,y,
@@ -46,7 +47,8 @@ t.test(x,y,
        var.equal = TRUE,
        alternative = "two.sided")
 ```
-
+non c'è una differenza significativa tra i due gruppi per quento riguarda
+i tempi di recupero
 ```{r}
 # non parametric test
 wilcox.test(x,y,

@@ -15,6 +15,8 @@ We are going to use the dataset *cars* available in R.
 summary(cars)
 
 ```
+faccio prima l'analisi e testo gli assunti dopo perchè devo prima avere gli 
+errori
 
 # Point estimates
 
@@ -28,7 +30,9 @@ names(cars.lm)
 coef(cars.lm)
 
 ```
-
+y la mia velocità aumenta di 3.9 volte per ogni miglio orario
+intercetta negativa perchè non abbiamo specificato nel modello tale assunto.
+Ma non è assolutamente un errore.
 We visually inspect the data:
 
 ```{r regressionplot}
@@ -38,8 +42,11 @@ abline(coef(cars.lm), col="red", lwd=2)
 summary(cars.lm)
 
 ```
-
-
+la linea di regressione sarà basata sui coefficienti di cars.lm
+t=3.9-0/0.4
+p-value negativo, "accetto l'ipotesi nulla" secondo cui la distanza di arresto varia significativamente con la veclocità (3.9 è veramente diverso da 0)
+Pr>t è la probabilità che i dati siano o meno anomali rispetto all'ipotesi nulla, cioè che t sia o meno pari/diverso al valore soglia. t è il valore che
+separa la campana nella parte centrale dalle code estreme.
 ## Exercises
 
 1) What is the meaning of 60 = b0+b1(8)?   

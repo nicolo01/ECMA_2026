@@ -50,8 +50,9 @@ intervalli <- group.CI(weight_g ~ sex,
          ci=0.95)
 intervalli
 ```
-
-
+domanda legittima; è ragionevole che le femmine siano mediamente più pesanti dei maschi?
+se nell'esercizio precedente abbiamo riscontrato la conclusione opposta
+femmine gravide?
 ```{r}
 ggplot(intervalli, aes(x=sex, y=weight_g.mean, colour=sex)) +
     geom_errorbar(aes(ymin=weight_g.lower, ymax=weight_g.upper), width=.1) +
