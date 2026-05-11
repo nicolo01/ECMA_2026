@@ -9,7 +9,7 @@ output:
 library(dplyr)
 ```
 
-
+rm(list = ls())
 # Code for slide examples
 
 Remember that `df = (nrows-1)(ncols-1)`.

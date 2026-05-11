@@ -42,6 +42,7 @@ abline(coef(cars.lm), col="red", lwd=2)
 summary(cars.lm)
 
 ```
+t value = 9.464,Il coefficiente della velocità è 9.464 “errori standard” lontano da 0
 la linea di regressione sarà basata sui coefficienti di cars.lm
 t=3.9-0/0.4
 p-value negativo, "accetto l'ipotesi nulla" secondo cui la distanza di arresto varia significativamente con la veclocità (3.9 è veramente diverso da 0)
@@ -113,9 +114,11 @@ carsumry$sigma
 summary(cars.lm)
 
 ```
-
+test F significativo, quindi possiamo concludere che il nostro modello F è soddisfacente,
+quindi la varianza spiegata è significativamente più grande di quella non spiegata.
+3.93 è circa la pendenza della retta, di cui la sua incertezza è misurata dallo standard error
 In the *Coefficients* section we find the parameter estimates and their respective standard errors in the second and first columns. But we can also obtain the 95% confidence intervals:
-
+andiamo a vedere l'intervallo di confidenza sia per l'intercetta sia per beta1, ossia il coefficiente angolare della velocità. L'intervallo di confidenza ci rappresenta il fatto che nel 95% dei casi quell'intervallo conterrebbe il valore vero di beta1.
 ```{r coefconfidenceintervals}
 
 confint(cars.lm)
@@ -136,7 +139,7 @@ ci.plot(cars.lm)
 # simple.lm(cars$speed, cars$dist, show.ci=TRUE)
 
 ```
-
+questo output grafico riporta gli intervalli di confidenza al 95% della nostra regressione. Vediamo nel grafuco sia l'intervallo di confidenza per la regressione (linea tratteggiata verde) L'altro intervallo di confidenza, quello della prediction, è quello determinato dalle linee tratteggiate rosse. Se noi dovessimo prevedere un nuovo punto, questo al 95% dei casi si troverebbe nelle linee rosse, se andassimo a misurarlo, mentre ci aspettiamo che la nostra retta si trovi bene o male all'interno delle linee tratteggiate verdi.
 Note that we have two types of confidence intervals. The confidence is for the mean, and the prediction for the individual.
 
 ## Types of confidence intervals
@@ -172,7 +175,7 @@ The use of an adjusted R2 is an attempt to take account of the phenomenon of the
 # The heart rate example
 
 The maximum heart rate of a person if often said to be related to age by the equation: Max = 220 - 1*Age. The expected value for a regression coefficient of age hearth rate (max) and age is 1.
-Let's check if the data support this statement. (Try to formulate the null and alternative hypothesis first!)
+Let's check if the data support this statement. (Try to formulate the null and alternative hypothesis first!). NOn vogliamo solo verificare se tale valore di b1 è diverso da 0 o meno, ma anche se è o meno uguale a 1. Se fosse casualmente uguale a 1 vorrebbe dire che di anno in anno nei pazienti il battito cardiaco aumenta di una unità.
 
 ```{r heartratedata}
 
@@ -187,9 +190,11 @@ abline(coef(lm.result)) #lm(y ~ x)) # plot the regression line
 # to see only some parts of the result
 coef(lm.result)
 summary(resid(lm.result))
-
+confint(lm.result)
 ```
-
+x è il coefficiente angolare, ci viene -0.79 e vogliamo testare se esso è o meno significativamente diverso da 1. In realtà il battito diminuisce secondo il nostro grafico.
+I dati disponibili però ci dimostrano che c'è una relazione negativa e il nostro coefficiente è negativo. 
+modifichiamo ora la ipotesi nulla, in modo che quella alternativa sia che b1 è diversa significativamente da -1 e testiamo questa ipotesi.
 We can do a test to see if the slope of -1 is correct. In this case the null hypothesis is that the slope is -1, vs. the alternative hypothesis that the slope is different from -1. We can create the test statistic and find the p-value by hand:
 
 ```{r heartrate-handtest}
@@ -208,7 +213,8 @@ pt(t, 13, lower.tail = FALSE) # FIND THE RIGHT TAIL FOR THIS VALUE OF t AND 15-2
 pt(t, 13, lower.tail = FALSE)*2 # < 0.05, REJECT H0: it is unlikely that for this data 
 
 ```
-
+usiamo pt anzichè t.test perchè vogliamo testare se t è significativamente diverso da -1. t va calcolato a mano perchè lo vogliamo calcolare noi ed è diverso da quello che R calcolerebbe di default.
+lower.tail=FALSE e moltiplicare per due se vogliamo fare un test a due code. Scopro che il valore che ho trovato è significativamente diverso da -1.
 Now let's try to do something similar for the intercept. Let's check if the data support the intercept of 220 (H0: b0=220; H1: b0 < 220)
 
 ```{r heartrate-handtest-intercept}
@@ -221,4 +227,4 @@ t
 pt(t, 13, lower.tail = TRUE) # FIND THE LEFT TAIL FOR THIS VALUE OF t AND 15-2 df
 
 ```
-
+stessa cosa se volessimo testare il valore di beta0, intercetta.

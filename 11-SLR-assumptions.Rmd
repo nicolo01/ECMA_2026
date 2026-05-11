@@ -25,7 +25,7 @@ names(cars.lm)
 ```
 
 We can do the same for the residuals, and we can plot them:
-
+volendo possiamo fare queste stesse operazioni a mano.
 ```{r SLRresiduals}
 
 residuals(cars.lm)
@@ -52,7 +52,7 @@ plot(cars.lm)
 One of the strongest regression assumptions is the one regarding independence. Departures from the independence assumption are often exhibited by correlation (or autocorrelation) present in the residuals. There can be positive or negative correlation.   
 To check this assumption, we use the first plot and we watch out for any patterns or structure: the points should be randomly scattered on the plot.   
 We can also do a test for this:
-
+se ulteriomente non siamo sicuri di questa assunzione possiamo fare un ulteriore test
 ```{r durbinwatson}
 
 # install.packages("lmtest")
@@ -60,7 +60,7 @@ library(lmtest)
 dwtest(cars.lm, alternative = "two.sided")
 
 ```
-
+p>0.05 quindi confermiamo che non ci siano problemi rispetto al grafico precedente
 In this case, we do not reject the null hypothesis. There is very little evidence of nonzero autocorrelation in the residuals.
 
 
@@ -86,7 +86,7 @@ Of course, the normality of the residuals can be checked with a Shapiro test:
 shapiro.test(residuals(cars.lm))
 
 ```
-
+vale la pena fare un test di shapiro perchè nel grafico precedente vedevamo che ad un certo punto i dati iniziano a disperdersi rispetto alla retta, e facendolo effettivamente si nota che il p-value è significativo, nonostante W , il valore della statistica di Shapiro è quasi uguale a 1, come lo vorremmo noi. PErò possiamo scendere a compromessi e decidere cmq che non è troppo importante questo valore (inoltre questo è l'assunto meno importante tra tutti)
 For this data, we would reject the assumption of normality of the residuals - but the regression model is reasonably robust to departures from the normality assumptions. As long as the residual distribution is not highly skewed, the regression estimators will perform reasonably well.
 
 
@@ -101,7 +101,7 @@ library(lmtest)
 bptest(cars.lm)
 
 ```
-
+valore di breush-pagan non significativo quindi possiamo stare tranquillo. Vediamo adesso cosa dobbiamo fare se venisse storto qualcosa.
 A **standardized residual** is the raw residuals divided by an overall standard deviation of the raw residuals.
 
 ## BoxCox transformation
@@ -113,15 +113,15 @@ head(trees)
 
 hist(trees$Volume)
 hist(trees$Volume^2)
-
-library(MASS)
+#la regressione nel complesso non viene male, ma se volessimo essere "perfetti", proseguiamo e usiamo il boxcox per agire sul fatto che la distribuzione iniziale del volume degli alberi non era normale. Poi gli controllo i valori di lambda e ho zoommato il grafico tra 0 e 0.5.Così mi sono aiutato a trovare il valore a cui elevare y.
+library(MASS) 
 ?boxcox
 bctrans <- boxcox(Volume ~ Height + Girth, data = trees)
 bctrans <- boxcox(Volume ~ Height + Girth, data = trees,
                   lambda = seq(0, 0.5, length = 10))
 bctrans
-which(bctrans$y==max(bctrans$y))
-bctrans$x[62]
+which(bctrans$y==max(bctrans$y))  #dove si trova il picco
+bctrans$x[62]#lambda è l'esponente a cui vado ad elevare il volume
 hist(trees$Volume)
 hist(trees$Volume^0.31)
 
@@ -133,6 +133,11 @@ head(risultati.bc)
 
 arrange(risultati.bc, bctrans.y)
 
+trees %>%
+  mutate(Volume.bc=Volume^0.31) ->trees.bc #aggiungiamo una colonna (Volume.bc e calcola come colonna volume originaria elevata a 0.31) al dataset originario
+mod.new<-lm(Volume.bc ~ Height + Girth, data = trees.bc)
+summary(mod.new)
+#vado a creare questo nuovo modello
 ```
-
+è aumentata con questo modello la significatività dell'altezza dell'albero,ed è aumentato R quadro, ottenendo un modello leggermente migliore
 

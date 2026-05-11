@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 The following data comes from an experiment on caterpillars. The caterpillars were fed on experimental diets differing in their tannin content, and their growth was then measured:
-
+questo è un esempio più "faunistico"
 ```{r}
 growth = c(12, 10, 8, 11, 6, 7, 2, 3.5, 3.5)
 tannin = 0:8
@@ -19,22 +19,23 @@ summary(lm.result)
 plot(growth ~ tannin)
 abline(coef(lm.result), lwd=2, col="red")
 ```
-
+relazione negativa tra l'aumento di tannini nella dieta e la crescita. (lo si capisce dal valore -1-1583, il coefficiente angolare)
 
 A previous experiment, however, produced different results. In particular, the slope of the regression coefficient was -1.5. We can do a test to see if the slope we just estimated (-1.158) is statistically different from 1.5. In this case the null hypothesis is that the slope is -1.5, vs. the alternative hypothesis that the slope is more than -1.5.
-
+un collega dell'anno prima rifacendo lo stesso esperimento aveva ottenuto un valore diverso di t, quindi vogliamo vedere se il valore di t è significativamente più grande di -1.5. QUindi qui l'esercizio mi sta chiedendo espressamente di fare un test a una coda.0.2236 è l'errore standard.
 ```{r}
 t = (-1.1583 - (-1.5))/0.2236
 t
 pt(t, 7, lower.tail = FALSE)
 ```
-
+7 gradi di liberta, perchè 9-2=7. In questo caso p >0.05, quindi tale coefficiente è più grande ma non significativamente più grande, quindi sommariamente le due analisi sono allineate. Verifichiamolo anche con gli intervalli di confidenza. Effettivamente l'intervallo di confidenza contiene -1.5.
 
 ```{r}
 confint(lm.result)
 ```
 
 
+ora torniamo alle slide e introduciamo i test sugli assunti (slide 9), che va fatto dopo perchè i nostri assunti sulla regressione si basano sui residui, su quanto i punti si disconstano dalla retta.
 
 
 

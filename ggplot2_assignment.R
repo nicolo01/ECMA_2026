@@ -4,7 +4,7 @@ library("ggplot2")
 #reload the package
 data("captures")
 View(captures)
-
+library("dplyr")
 #Part 2
 #Investigate if heavier individuals have longer feet.
 #Create a scatter plot with weight_g on the x-axis and 
@@ -15,6 +15,15 @@ ggplot(captures,aes(x=weight_g, y=footlength_mm))+ geom_point()
 ggplot(captures,aes(x=weight_g, y=footlength_mm))
 #notice that if I don't specify "geom_point" the graph does not have points!
 
+# elimino outlier
+captures <- captures %>% 
+  filter(footlength_mm < 60)
+captures <- subset(captures, sex %in% c("M", "F"))
+captures <- subset(captures, !is.na(age))
+ggplot(captures, aes(x = weight_g, y = footlength_mm, color = sex)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal()
 #Color the points by the sex variable.
 ggplot(captures,aes(x=weight_g, y=footlength_mm, colour = sex))+ geom_point()
 
