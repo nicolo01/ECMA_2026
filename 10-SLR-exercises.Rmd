@@ -33,7 +33,7 @@ pt(t, 7, lower.tail = FALSE)
 ```{r}
 confint(lm.result)
 ```
-
+le differenze con l'anno precedente non sono significative.
 
 ora torniamo alle slide e introduciamo i test sugli assunti (slide 9), che va fatto dopo perchè i nostri assunti sulla regressione si basano sui residui, su quanto i punti si disconstano dalla retta.
 

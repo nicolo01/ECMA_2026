@@ -192,6 +192,7 @@ coef(lm.result)
 summary(resid(lm.result))
 confint(lm.result)
 ```
+13 gradi di libertà perchè ci sono due parametri (intercetta e coefficiente angolare, ci sono due parametri che sottraggono libertà al modello e che stiamo andando a stimare)
 x è il coefficiente angolare, ci viene -0.79 e vogliamo testare se esso è o meno significativamente diverso da 1. In realtà il battito diminuisce secondo il nostro grafico.
 I dati disponibili però ci dimostrano che c'è una relazione negativa e il nostro coefficiente è negativo. 
 modifichiamo ora la ipotesi nulla, in modo che quella alternativa sia che b1 è diversa significativamente da -1 e testiamo questa ipotesi.
@@ -204,7 +205,7 @@ We can do a test to see if the slope of -1 is correct. In this case the null hyp
 # b1 = coef(lm.result)[[2]]
 # s = sqrt(sum(es^2)/(n-2)) # S^2 = SSE/(n-2), s is the residual standard error
 # SE = s/sqrt(sum((x-mean(x))^2)) # SE
-b1 = -0.79773
+b1 = -0.79773# coefficiente angolare
 SE = 0.06996
 t = (b1-(-1))/SE # (obs. value - hyp.value)/SE
 t

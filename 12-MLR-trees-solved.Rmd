@@ -9,7 +9,7 @@ output:
     toc: yes
     toc_float: yes
 ---
-
+questo è un dataset già disponibile in R
 
 ## Problem 8.6
 
@@ -25,7 +25,7 @@ class(trees)
 head(trees)
 str(trees)
 ```
-
+str è un comando che ci indica la struttura dei dati, sono tutte e tre variabili quantitative continue.
 
 ```{r problem8.6-histogram}
 # histograms
@@ -49,19 +49,19 @@ The graphs show us that the distributions are not symmetric (maybe just Height l
 shapiro.test(trees$Girth)
 qqnorm(trees$Girth); qqline(trees$Girth)
 ```
-
+analisi esplorative x prendere confidenza
 ```{r problem8.6-normality-height}
 # normality test
 shapiro.test(trees$Height)
 qqnorm(trees$Height); qqline(trees$Height)
 ```
-
+questo è il blocco di codice che ci interessa di più.
 ```{r problem8.6-normality-volume}
 # normality test
 shapiro.test(trees$Volume)
 qqnorm(trees$Volume); qqline(trees$Volume)
 ```
-
+il qqplot evidenzia uno scostamento dei quantili campionari rispetto alla ditribuzione teorica, anche se è uno scostamento minimo, quindi "chiudiamo un occhio".
 
 The Shapiro test is significant for Volume: **the distribution of this latter variable is not normal and it is positive skewed**!
 
@@ -90,7 +90,9 @@ summary(mod)
 
 
 ```
-
+un aumento di diametro di una unità (girth) influisce di 4.70 volte sul volume, mentre per l'altezza influisce di "solo" un aumento di 0.33 volte".
+il diametro e la lunghezza hanno un effetto significativo sul volume dell'albero. entrambe le variabili contribuiscono a determinare significativamente il volume. Ma immaginiamo che questo effetto valga solo fino a un certo punto e poi si assista ad un decremento. Devo chiedere al modello di fittare non una retta ma una parabola. Inserisco le due variabili al quadrato, inserisco una I prima per dire a R di elevare al quadrato, per evitare di inserire un altra colonna con i valori al quadrato.
+la statistica F ci indica la significatività complessiva del modello. Usare una retta di regressione è significativamente meglio rispetto ad assumere che non ci sia una relazione tra le variabili.
 Is the overall model significant?   
 YES, IT IS (LOOK AT THE F-STATISTIC)
 
@@ -105,12 +107,12 @@ mod.q <- lm(Volume ~ Girth + I(Girth^2) +
             data=trees)
 summary(mod.q)
 # alternative code:
-mod.q <- lm(Volume ~ poly(Girth, 2, raw=TRUE) + poly(Height, 2, raw=TRUE), data=trees)
-summary(mod.q)
+mod.q.poly <- lm(Volume ~ poly(Girth, 2, raw=TRUE) + poly(Height, 2, raw=TRUE), data=trees)
+summary(mod.q.poly)
 
 ```
-
-
+per il diametro si ha un inversione di tendenza, il primo braccio della parabola ha una relazione negativa che poi diventa in crescendo.
+specifichiamo raw=true perchè vogliamo utilizzare i dati grezzi. Per vedere entrambi i codici runnateli separatamente.
 ```{r trees-quadratic2}
 
 plot(Volume ~ Girth, data=trees)
@@ -118,7 +120,7 @@ plot(Volume ~ Girth, data=trees)
 mod.q <- lm(Volume ~ Girth + I(Girth^2) + Height , data=trees)
 summary(mod.q)
 ```
-
+il volume dell'albero aumenta all'aumentare sia dell'altezza sia dell'altezza elevata al quadrato, per cui per quanto riguarda l'altezza non è necessario elevare al quadrato, mentre sul diametro mi rimane il dubbio. Vado a testare quindi un nuovo modello, secondo cui testiamo la relazione lineare tra volume e altezza.
 Perhaps the girth and height of the tree interact to influence its volume: investigate a model including an interaction term for the two explanatory variables.
 
 ```{r trees-interaction}
@@ -127,8 +129,8 @@ mod.int <- lm(Volume ~ Girth * Height, data=trees)
 summary(mod.int)
 
 ```
-
-
+i risultati evidenziano la significatività per i termini al quadrato (facciamo così per fittare la funzione parabola e cercare di spiegare meglio i dati spiegati), la relazione tra diametro e volume è perlopiù di questo tipo che non di semplice tipo lineare. Ora però ci viene un altro dubbio ecologico "diametro e altezza interagiscono insieme per determinare il volume dell'albero??" l'effetto dell'aumento in altezza potrebbe essere egato al diametro che stiamo considerando in quel momento. QUindi inseriamo adesso una qualche interazione tra le variabili x, con il simbolo moltiplicatore. QUindi il volume dell'albero testiamo che dipenda significativamente non solo sia da altezza e diametro ma anche dall'interazione tra le due.
+Per capire l'interazione tra le variabili guardare i grafici, nella tabella dei coefficienti talvolta viene negativo (il che non avrebbe senso per noi che l'altezza diminuisce all'aumentare del diametro, dipende da come R interpreta l'equazione).
 ```{r trees-regression2}
 
 mod <- lm(Volume ~ Girth * Height, data=trees)
@@ -137,7 +139,9 @@ plot(trees$Volume ~ trees$Girth)
 plot(trees$Volume ~ trees$Height)
 
 ```
-
+i risultati confermano questa nostra predilezione.Lo si vede anche dalla riga precedente
+Girth:Height  0.13465    0.02438   5.524 7.48e-06 *** 
+Ma lo vogliamo testare graficamente.
 ```{r}
 library(sjPlot)
 # plot_model(mod)
@@ -146,11 +150,11 @@ library(sjPlot)
 ```{r}
 plot_model(mod, type = "eff", terms = "Girth")
 ```
-
+l'interazione tra le due variabili non va ad intersecare lo zero (circa 0.13). Questa è la conferma della significatività).
 ```{r}
 plot_model(mod, type = "eff", terms = "Height")
 ```
-
+andiamo adesso finalmente a plottare questo termine di interazione, e vogliamo vederne il grafico.
 
 ```{r}
 plot_model(mod.int, type = "eff", terms = "Height")
@@ -159,17 +163,22 @@ plot_model(mod.int, type = "int", terms = c("Height","Girth")) # # type = "int" 
 library(jtools)
 effect_plot(mod.int, pred = Girth, interval = TRUE)
 ```
-
-
+l'effetto di una variabile, in termini di coefficiente angolare, dipende dai valori assunti dall'altra.
+ora; plottami i valori predetti tra 60 e 80 (nel caso ci interessassero dei valori di altezza precisi). Se le rette si intersecano vuol dire che appunto c'è un interazione significativa tra le due variabili, altrimenti le due rette sarebbero fondamentalmente parallele.
 ```{r}
 plot_model(mod.int, type = "pred", terms = c("Girth", "Height [60,80]"))
 ```
-
-
+ora plottiamo i valori predetti, il diametro è il secondo che compare, le due rette non sono propriamente parallele e questo ci fa intuire che ci sia una qualche interazione (inoltre se le tracciassimo anche più a sinistra del grafico vedremmo che esse si interesecherebbero).
+R va a calcolare il volume sulla base dell'interazione tra girth e HEight, sulla base dell'equazione, ovvero l'equazione che abbiamo "scritto" nel modello "lm" implicitamente. Noi lo chiamiamo modello ma di fatto è una formula matematica.
 ```{r}
 # switch moderator
 plot_model(mod.int, type = "pred", terms = c("Height", "Girth"))
 ```
 
 
+AIC(mod.q.poly)
+AIC(mod.q)
+AIC(mod.int)
+AIC(mod)
+#probabilmente alcuni modelli li abbiamo sovrascritti, sarebbero da rifare riportando il codice script e modificando il nome.
 

@@ -12,6 +12,7 @@ output:
 
 
 ```{r}
+library(MASS)
 library(car)
 library(dplyr)
 library(ggcorrplot)
@@ -36,7 +37,7 @@ In the presence of multicollinearity, **the solution of the regression model bec
 Collinearity issues can be assessed in different ways. The simplest one involves computing the correlation coefficients between variables.
 
 We’ll use the Boston data set in `MASS` package for predicting the median house value (`mdev`) in Boston Suburbs, based on multiple predictor variables.
-
+Il dataset Boston contiene tutta una serie di variabili x, noi stiamo cercando di spiegare il prezzo delle case in una certa zona, e poi abbiamo tutte le caratteristiche di quella certa zona.
 ```{r}
 # Load the data
 data("Boston", package = "MASS")
@@ -63,14 +64,14 @@ pred
 ```
 
 Now, we can compute a correlation matrix:
-
+utilizziamo la funzione cor per creare una matrice di correlazione.
 ```{r}
 cor.matrix <- cor(pred)
 cor.matrix
 ```
-
+ad esempio, tra tax e indus c'è un coefficiente di 0.7 abbastanza alto che già ci dice qualcosa.
 And we can visualize it:
-
+se il cor>0.7, eliminiamo una variabile.PEr scegliere quale, consideriamo il significato della variabile, la facilità di reperibilità dei dati per quella variabile, e se non riuscissimo a scartare neanche così facciamo un modello,e lasciamo alla matematica decidere il modello migliore che "fitta" meglio, in base all'AIC appunto.
 ```{r}
 ggcorrplot(cor.matrix)
 ggcorrplot(cor(pred))
@@ -87,24 +88,25 @@ We can add labels, but it is still difficult detecting relevant correlations:
 ```{r}
 ggcorrplot(cor.matrix, method = "circle", lab=TRUE)
 ```
-
+possiamo chiedere a R di andare a identificare nella nostra matrice dove ci sono i problemi di correlazione. Prendiamo in valore assoluto la matrice precedente, perchè appunto non importa il segno, e andiamo a dirgli di metterci un TRuE o FALSE.
 We set a threshold to identify relevant correlations:
 
 ```{r}
 p.mat <- (abs(cor.matrix) > 0.7)
 p.mat
 ```
-
+ora, R ci mette una crocetta su quelle coppie di variabili che sono correlate tra loro . Ci sono 7 coppie di variabili correlate.
 
 ```{r}
 # Argument p.mat
 # Barring the significant coefficients
 ggcorrplot(cor.matrix,
-  hc.order = TRUE, method = "circle",
-  type = "lower", p.mat = p.mat
-)
+  hc.order = TRUE, method = "circle", #metti in ordine i valori
+  type = "lower", p.mat = p.mat #stampami solo la parte inferiore della matrice
+) #perchè è una matrice speculare.
 ```
-
+Indus ha ben tre problemi di correlazione, quindi posso agire per eliminarlo, perchè è molto correlato. Posso procedere tenendo quelle che non sono correlate insieme a quelle da tenere con attenzione.Di solito per ogni parametro stimato dobbiamo avere almeno 10-15 righe nel dataset.
+questo era il primo metodo "a monte".....poi possiamo fqare un modello lineare che consideri tutte le variabili e mi dia il suo summary.
 When faced to multicollinearity, the concerned variables should be removed, since the presence of multicollinearity implies that the information that this variable provides about the response is redundant in the presence of the other variables (James et al. 2014,P. Bruce and Bruce (2017)).
 
 ## Variance Inflation Factor
@@ -120,14 +122,14 @@ The following regression model include all predictor variables:
 model1 <- lm(medv ~ ., data = Boston)
 summary(model1)
 ```
+non possiamo fidarci di questo output perchè l'errore standard di 3.8 "non ci possiamo credere" (è un esempio) perchè la multicollinearità fa cambiare le stime , perchè prima dall'analisi precedente avevamo ottenuto alcune correlazioni>0.7.
 
-
-The R function `vif()`, in the `car` package, can be used to detect multicollinearity in a regression model:
+The R function `vif()`, (variance inflation factor)in the `car` package, can be used to detect multicollinearity in a regression model:
 
 ```{r}
 vif(model1)
 ```
-
+Generalmente se il VIF è maggiore di 5/10 ci indica che quelle variabili stanno soffrendo la collinearità e andrebbero eliminate dal dataset. 
 In this case, we can see that the `rad` and `tax` predictors have high VIF values - compare with the results of the correlation analysis above!!
 
 # Exercise
@@ -144,7 +146,7 @@ In multiple regression, it is always a good idea to use pairs to look at all the
 ```{r}
 pairs(pollution,panel=panel.smooth)
 ```
-
+generiamo degli "scatterplot a coppie per la nostra matrice di correlazione"
 Check for relevant correlations and visualize them. Compute the variance inflation factor and update the model accordingly.
 
 ```{r}
@@ -157,7 +159,7 @@ ggcorrplot(cor.matrix,
   type = "lower", p.mat = p.mat
 )
 ```
-
+su industria e popolazione c'è un caso effettivamente problematico.
 ```{r}
 # Build the model
 model1 <- lm(Pollution ~ ., data = pollution)
@@ -168,4 +170,5 @@ vif(model1)
 model1 <- lm(Pollution ~ Temp + Industry + Wind + Rain + Wet.days, data = pollution)
 summary(model1)
 ```
-
+togliendo la variabile population si è abbassato drasticamente l'errore standard su Industry.
+solo dopo aver calcolato il VIF ci concentriamo sull'output. Solo alla fine, ed escludendo ogni ipotesi di collinearità si valutano gli AIC tra i modelli.
