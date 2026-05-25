@@ -52,10 +52,11 @@ data("Boston", package = "MASS")
 We look at the data:
 
 ```{r}
+data(Boston)
 head(Boston)
 ```
 
-We select the predictor variables:
+We select the predictor variables: selezioniamo i potenziali predittori che permettono di prevedere il prezzo delle case, scegliamo le più importanti per spiegare il prezzo delle case.
 
 ```{r}
 pred <- dplyr::select(Boston, crim:lstat)
@@ -71,7 +72,7 @@ cor.matrix
 ```
 ad esempio, tra tax e indus c'è un coefficiente di 0.7 abbastanza alto che già ci dice qualcosa.
 And we can visualize it:
-se il cor>0.7, eliminiamo una variabile.PEr scegliere quale, consideriamo il significato della variabile, la facilità di reperibilità dei dati per quella variabile, e se non riuscissimo a scartare neanche così facciamo un modello,e lasciamo alla matematica decidere il modello migliore che "fitta" meglio, in base all'AIC appunto.
+se il cor>0.7, eliminiamo una variabile.Per scegliere quale, consideriamo il significato della variabile, la facilità di reperibilità dei dati per quella variabile, e se non riuscissimo a scartare neanche così facciamo un modello,e lasciamo alla matematica decidere il modello migliore che "fitta" meglio, in base all'AIC appunto.
 ```{r}
 ggcorrplot(cor.matrix)
 ggcorrplot(cor(pred))
@@ -106,7 +107,7 @@ ggcorrplot(cor.matrix,
 ) #perchè è una matrice speculare.
 ```
 Indus ha ben tre problemi di correlazione, quindi posso agire per eliminarlo, perchè è molto correlato. Posso procedere tenendo quelle che non sono correlate insieme a quelle da tenere con attenzione.Di solito per ogni parametro stimato dobbiamo avere almeno 10-15 righe nel dataset.
-questo era il primo metodo "a monte".....poi possiamo fqare un modello lineare che consideri tutte le variabili e mi dia il suo summary.
+questo era il primo metodo "a monte".....poi possiamo fittare un modello lineare che consideri tutte le variabili e mi dia il suo summary.
 When faced to multicollinearity, the concerned variables should be removed, since the presence of multicollinearity implies that the information that this variable provides about the response is redundant in the presence of the other variables (James et al. 2014,P. Bruce and Bruce (2017)).
 
 ## Variance Inflation Factor

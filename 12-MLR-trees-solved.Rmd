@@ -76,7 +76,7 @@ data("trees")
 
 ```
 
-Does the volume depends on girth and height? What is the mean volume of trees when girth and height are zero? What is the mean increase in volume when there is a one-unit increase in girth?
+Does the volume depend on girth and height? What is the mean volume of trees when girth and height are zero? What is the mean increase in volume when there is a one-unit increase in girth?
 
 ```{r trees-regression}
 
@@ -90,7 +90,7 @@ summary(mod)
 
 
 ```
-un aumento di diametro di una unità (girth) influisce di 4.70 volte sul volume, mentre per l'altezza influisce di "solo" un aumento di 0.33 volte".
+un aumento di diametro di una unità (girth) influisce di un aumento di 4.70 volte sul volume, mentre per l'altezza influisce di "solo" un aumento di 0.33 volte".
 il diametro e la lunghezza hanno un effetto significativo sul volume dell'albero. entrambe le variabili contribuiscono a determinare significativamente il volume. Ma immaginiamo che questo effetto valga solo fino a un certo punto e poi si assista ad un decremento. Devo chiedere al modello di fittare non una retta ma una parabola. Inserisco le due variabili al quadrato, inserisco una I prima per dire a R di elevare al quadrato, per evitare di inserire un altra colonna con i valori al quadrato.
 la statistica F ci indica la significatività complessiva del modello. Usare una retta di regressione è significativamente meglio rispetto ad assumere che non ci sia una relazione tra le variabili.
 Is the overall model significant?   
@@ -130,7 +130,7 @@ summary(mod.int)
 
 ```
 i risultati evidenziano la significatività per i termini al quadrato (facciamo così per fittare la funzione parabola e cercare di spiegare meglio i dati spiegati), la relazione tra diametro e volume è perlopiù di questo tipo che non di semplice tipo lineare. Ora però ci viene un altro dubbio ecologico "diametro e altezza interagiscono insieme per determinare il volume dell'albero??" l'effetto dell'aumento in altezza potrebbe essere egato al diametro che stiamo considerando in quel momento. QUindi inseriamo adesso una qualche interazione tra le variabili x, con il simbolo moltiplicatore. QUindi il volume dell'albero testiamo che dipenda significativamente non solo sia da altezza e diametro ma anche dall'interazione tra le due.
-Per capire l'interazione tra le variabili guardare i grafici, nella tabella dei coefficienti talvolta viene negativo (il che non avrebbe senso per noi che l'altezza diminuisce all'aumentare del diametro, dipende da come R interpreta l'equazione).
+Per capire l'interazione tra le variabili guardare i grafici, nella tabella dei coefficienti talvolta viene negativo (il che non avrebbe senso per noi dire che l'altezza diminuisce all'aumentare del diametro, dipende da come R interpreta l'equazione).
 ```{r trees-regression2}
 
 mod <- lm(Volume ~ Girth * Height, data=trees)

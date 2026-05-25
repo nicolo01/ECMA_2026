@@ -9,20 +9,20 @@ output:
     toc: yes
     toc_float: yes
 ---
-
+torniamo alle nostre arvicole delle nevi.
 In this exercise, we fit a binomial regression model to the snow vole data.   
 In our data set, called 'dati.mod.csv', the column 'CattSiNo' has a 0 for traps were no captures were recorded, and a 1 for traps were at least one capture occurred. This is our dependent variable.   
 For the purpose of our exercise, we use the columns from 8 to 15 as explanatory variables.  
 
 ```{r captures-boxplot-varwidth}
-
+rm(list = ls())
 dati.mod <- read.csv("data/dati.mod.csv")
 head(dati.mod)
 varexpl <- dati.mod[,8:15]
 head(varexpl)
 
 ```
-
+isoliamo le variabili esplicative che saranno quelle che utilizzeremo come variabili y.
 
 ## Data exploration
 
@@ -32,15 +32,15 @@ First look at the dependent variable:
 hist(dati.mod$CattSiNo)
 table(dati.mod$CattSiNo)
 ```
-
+vogliamo capire se e come mai le nostre arvicole si distribuiscono in quei siti e non in altri. La funzione table va a contare semplicemente quante volte c'è 0 e quante volte c'è 1. Vogliamo vedere se il numero di zeri e di uni è abbastanza bilanciato, altrimenti il modello non funzionerebbe benissimo....45 a 30 va bene
 Now look at the explanatory variables:
-
+diamo un occhiata x vedere che non ci siano degli outlier etc...
 ```{r}
 summary(varexpl)
 ```
 
 Explore the pairwise relationship between the Y and X variables:
-
+vediamo se ad esempio la pendenza del terreno è diversa nelle trappole che hanno catturato le arvicole oppure no
 ```{r}
 with(dati.mod,
      boxplot(Incl ~ CattSiNo, main="Slope"))
@@ -59,7 +59,7 @@ with(dati.mod,
 with(dati.mod,
      boxplot(Esp.tr ~ CattSiNo, main="Aspect"))
 ```
-
+ma questi grafici sono molto esplorativo, non ci dobbiamo "fossilizzare" su questi risultati....il risultato più diretto c'è lo da l'analisi di regressione....vediamo altri passaggi di analisi esplorativa
 ### Cleveland dotplot
 
 ```{r cleveland-dotplots}
@@ -86,7 +86,7 @@ dati.mod.new2 <- data.frame(dati.mod, logSD = log(dati.mod$sd.rocce))
 head(dati.mod.new2)
 
 ```
-
+abbiamo visto la correlazione tra le variabili (volta scorsa, qui rivediamo quei passaggi).
 
 ## Analyse correlations
 
@@ -94,12 +94,12 @@ head(dati.mod.new2)
 cor(varexpl)
 ```
 
-
+ora possiamo fittare il modello.
 ## Fit the base model
 
 We can now fit our 'base model', i.e. the most complex model including all explanatory variables that are not too much correlated.
-
-
+noi pensiamo che queste variabili siano in grado di influenzare la presenza dell'arvicola delle nevi
+l'ordine delle variabili è ininfluente
 ```{r}
 
 fm1 <- glm(CattSiNo ~ Incl +  # BEYOND OPTIMAL MODEL
@@ -107,15 +107,15 @@ fm1 <- glm(CattSiNo ~ Incl +  # BEYOND OPTIMAL MODEL
              copveg +
              # NSpecie +
              # media.rocce +
-             mediana.rocce +
-             sd.rocce +
+             #mediana.rocce +
+             #sd.rocce +
              Esp.tr,
-           family=binomial, data=dati.mod.new)
+           family=binomial, data=dati.mod.new) #i dati che stai gestendo sono binomiali
 #, offset=Noccasioni)
-summary(fm1)
+summary(fm1) #plottiamo separatamente i due modelli.
 
 hist(dati.mod.new$Ncatture)
-fm1.pois <- glm(Ncatture ~ Incl +
+fm1.pois <- glm(Ncatture ~ Incl + #se usiamo Ncatture, abbiamo una variiabile poissoniana, 
              Alt +
              copveg +
              # NSpecie +
@@ -123,12 +123,13 @@ fm1.pois <- glm(Ncatture ~ Incl +
              mediana.rocce +
              sd.rocce +
              Esp.tr,
-           family=poisson, data=dati.mod.new)
-#, offset=Noccasioni)
+           family=poisson, data=dati.mod.new)#è tutto identico, ma dobbiamo specificare poisson anzi
+#, offset=Noccasioni) anzichè binomial.
 summary(fm1.pois)
 
 ```
-
+quindi nel casoo dei conteggi contiamo fondamentalmente il semplice "Si/No" per ogni cattura, nel caso del binomiale andiamo più a fondo e vediamo il numero di catture per ogni trappola.
+media e mediana delle rocce sono già correlate quindi ne teniamo una sola.
 Now, try to reduce the number of variables in the model - different models can be compared in terms of AIC:
 
 ```{r}
@@ -149,7 +150,10 @@ summary(fm1.noexp)
 
 ```
 
+inclinazione e altitudine hanno un effetto significativo, l'inclinazione è negativa nel senso che più andiamo in alto e meno è probabile avere un uno, questo valore di AIC più basso ci dice che altitudine e inclinazione sono le variabili che spiegano meglio il fenomeno, rispetto a copertura vegetazionale e diamestro rocce, per esempio...ma non significa che le altre variabili siano ininfluenti....a partire dal modello base posso in generale testare delle sottoipotesi e testare se la topografia, il rifugio dai predatori (sd delle rocce) influenzano significativamente o meno le catture
 
+presentare i risutati negli articoli generalmente così (vedi foto) e saperli discutere
+es. driver: topografia CattSiNo~Incl+ Alt* Esp.tr.
 ### Interpreting the results
 
 If coefficient (logit) is positive, the effect of this predictor is positive and vice versa.
@@ -167,7 +171,7 @@ fm2 <- glm(CattSiNo ~ #Incl +
 #, offset=Noccasioni)
 summary(fm2)
 ```
-
+attenzione; questti coefficienti sono espressi in scala "logit", ma non otterremo ancora dei valori compresi tra 0 e 1 (la probabilità che la trappola abbia catturato un arvicola). Abbiamo cio+ specificato la link function ma non abbiamo ancora calcolato il valore di y atteso. Andiamo a plottare i risultati.
 ### Plotting the results
 
 The following is an example of a graph we can obtain using the termplot function (this is not necessarily the best model!!)
@@ -181,7 +185,7 @@ termplot(fm2, se=TRUE, col.term = "red", col.se = "grey",
 par(mfrow=c(1,1))
 
 ```
-
+per odds ratio si intende " la scommessa della probabilità di cattura", ma non è ancora interpretabile come una probabilità di cattura.....dobbiamo ancora trasformarlo.
 ```{r}
 library(popbio)
 logi.hist.plot(dati.mod.new$Alt,dati.mod.new$CattSiNo,boxp=FALSE,type="hist",col="gray")
@@ -205,7 +209,7 @@ logit2prob <- function(logit){
 ```{r}
 logit2prob(coef(fm2))
 ```
-
+ora possiamo esprimere questi valori di probabilità. Questo per vedere il tutto come si collega alle formule della tabella. Oppure possiamo usare predict, anche se è un pò più noioso da fare, usiamo plot model (231 riga)
 The relationship between logit and probability is not linear, but of s-curve type.   
 The coefficients in logit form can be be treated as in normal regression in terms of computing the y-value.   
 Transform the logit of your y-value to probability to get a sense of the probability of the modeled event.
@@ -223,12 +227,12 @@ arrange(tab, Alt)
 plot(arrange(tab, Alt))
 ```
 
-
+Come varia la probabilità di catturare gli animali al variare dell'altitudine?
 ```{r}
 library(sjPlot)
 plot_model(fm2, type = "eff", terms = c("Alt"))
 ```
-
+si possono testare diversi modelli, elevare al quadrato etc..
 
 ```{r}
 plot_model(fm2)

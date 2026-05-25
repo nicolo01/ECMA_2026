@@ -8,11 +8,12 @@ output: html_notebook
 We consider one of the data sets available with R relating to an experiment into plant growth. The purpose of the experiment was to compare the yields on the plants for a control group and two treatments of interest. The response variable was a measurement taken on the dried weight of the plants.
 
 ```{r}
+rm(list = ls())
 data(PlantGrowth)
 plant.df = PlantGrowth
 plant.df$group = factor(plant.df$group, labels = c("Control", "Treatment 1", "Treatment 2"))
 ```
-
+confrontiamo diversi trattamenti in agricoltura....i trattamenti applicati alle piante influenzano significativamente la loro crescita? Il controllo sarebbe il gruppo non trattato.
 * The data set is called **plant.df**. Have a look at it and visualize its structure.
 * Produce a side-by-side boxplot to visually compare groups.
 * Are the treatments different to the control group? To investigate these differences, fit a one-way ANOVA model (check for normality of the dependent variable prior to model fitting).
@@ -24,21 +25,22 @@ plant.df$group = factor(plant.df$group, labels = c("Control", "Treatment 1", "Tr
 mod <- lm(weight ~ group, data = plant.df)
 summary(mod)
 ```
-
+il modello ci avrebbe detto che le piante sottoposte al trattamento 1 non sono significativamente diverse da quelle di "controllo". Il modello fa un confronto a coppie già, ma non ci può far capire come si comportano le piante sottoposte al trattamento 1 rispetto a quelle sottoposte al trattamento 2 (non sta facendo tutti i confronti), mentre nell'anova stiamo considerando tutte le possibii combinazioni (c'è una differenza da qualche parte ci sta dicendo). Finiamo la prossima volta.
 ```{r}
 plant.df$group <- relevel(plant.df$group, ref="Treatment 1") 
 mod <- lm(weight ~ group, data = plant.df)
 summary(mod)
 ```
-
+possiamo vederlo così oppure usare le formule dell'analisi della varianza
 ```{r}
-
+anova.yields<- aov(weight~group, data=plant.df)
+summary(anova.yields)
 ```
-
+cosa mi dice? ho una variabile gruppo con due gradi di libertà (numero livelli-1), e mi sta andando a confrontare la varianza che si spiega utilizzando la variabile di raggruppamento rispetto alla varianza residua "quanto "spieghiamo introducendo la variabile gruppo".....il modello è significativo e stiamo migliorando nel spiegare la varianza in maniera significativa. Il test ricorda lo usiamo quando vogliamo confrontare le varianze
 ```{r}
-
+anova(lm(weight~group, data=plant.df))
 ```
-
+il tipo di trattamento quindi incide significativamente sulla crescita delle piante, ma non sappiamo ancora se i tre trattamenti sono diversi tra loro.
 ```{r}
 
 ```
