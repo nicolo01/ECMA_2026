@@ -22,7 +22,7 @@ varexpl <- dati.mod[,8:15]
 head(varexpl)
 
 ```
-isoliamo le variabili esplicative che saranno quelle che utilizzeremo come variabili y.
+isoliamo le variabili esplicative che saranno quelle che utilizzeremo come variabili x.
 
 ## Data exploration
 
@@ -78,7 +78,7 @@ par(mfrow=c(1,1))
 subset(dati.mod, dati.mod$sd.rocce > 200)
 dati.mod.new <- subset(dati.mod, dati.mod$sd.rocce < 200)
 
-# trasformazione della variabile x
+# trasformazione della variabile x (why?)
 boxplot(dati.mod$sd.rocce)
 boxplot(log(dati.mod$sd.rocce))
 dati.mod.new2 <- cbind(dati.mod, logSD = log(dati.mod$sd.rocce))
@@ -150,7 +150,7 @@ summary(fm1.noexp)
 
 ```
 
-inclinazione e altitudine hanno un effetto significativo, l'inclinazione è negativa nel senso che più andiamo in alto e meno è probabile avere un uno, questo valore di AIC più basso ci dice che altitudine e inclinazione sono le variabili che spiegano meglio il fenomeno, rispetto a copertura vegetazionale e diamestro rocce, per esempio...ma non significa che le altre variabili siano ininfluenti....a partire dal modello base posso in generale testare delle sottoipotesi e testare se la topografia, il rifugio dai predatori (sd delle rocce) influenzano significativamente o meno le catture
+inclinazione e altitudine hanno un effetto (maggiormente) significativo, l'inclinazione è negativa nel senso che più andiamo in alto e meno è probabile avere un uno, questo valore di AIC più basso ci dice che altitudine e inclinazione sono le variabili che spiegano meglio il fenomeno, rispetto a copertura vegetazionale e diamestro rocce, per esempio...ma non significa che le altre variabili siano ininfluenti....a partire dal modello base posso in generale testare delle sottoipotesi e testare se la topografia, il rifugio dai predatori (sd delle rocce) influenzano significativamente o meno le catture
 
 presentare i risutati negli articoli generalmente così (vedi foto) e saperli discutere
 es. driver: topografia CattSiNo~Incl+ Alt* Esp.tr.
@@ -171,7 +171,7 @@ fm2 <- glm(CattSiNo ~ #Incl +
 #, offset=Noccasioni)
 summary(fm2)
 ```
-attenzione; questti coefficienti sono espressi in scala "logit", ma non otterremo ancora dei valori compresi tra 0 e 1 (la probabilità che la trappola abbia catturato un arvicola). Abbiamo cio+ specificato la link function ma non abbiamo ancora calcolato il valore di y atteso. Andiamo a plottare i risultati.
+attenzione; questti coefficienti sono espressi in scala "logit", ma non otterremo ancora dei valori compresi tra 0 e 1 (la probabilità che la trappola abbia catturato un arvicola). Abbiamo cioè specificato la link function ma non abbiamo ancora calcolato il valore di y atteso. Andiamo a plottare i risultati.
 ### Plotting the results
 
 The following is an example of a graph we can obtain using the termplot function (this is not necessarily the best model!!)
@@ -213,6 +213,7 @@ ora possiamo esprimere questi valori di probabilità. Questo per vedere il tutto
 The relationship between logit and probability is not linear, but of s-curve type.   
 The coefficients in logit form can be be treated as in normal regression in terms of computing the y-value.   
 Transform the logit of your y-value to probability to get a sense of the probability of the modeled event.
+
 
 ```{r}
 predict.alt <- predict(fm2,
@@ -256,7 +257,7 @@ fm2 <- glm(CattSiNo ~ Alt,
 summary(fm2)
 
 # no:
-fm2 <- glm(CattSiNo ~ I(Alt^2),
+fm2 <- glm(CattSiNo ~ I(Alt^2), #per cosa sta la I?
            family=binomial, data=dati.mod.new)
 #, offset=Noccasioni)
 summary(fm2)

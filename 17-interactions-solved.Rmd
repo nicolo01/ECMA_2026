@@ -23,6 +23,7 @@ Supplement is a factor with four levels: agrimore, control, supergain and supers
 The response variable is weight gain after 6 weeks.
 
 ```{r}
+rm(list = ls())
 weights <- read.csv("data/growth2.txt", sep="\t")
 head(weights)
 ```
@@ -30,34 +31,34 @@ head(weights)
 ```{r}
 table(weights$diet, weights$supplement)
 ```
-
-
+la funzione table ci conta quante volte barley è associata ad agrimore e cos' via....il campione è bilanciato.
 
 ```{r}
 with(weights,
-     coplot(gain ~ diet|supplement,rows=2))
+     coplot(gain ~ diet|supplement,rows=2)) #aggiusto, per ora tralalsciamo
 ```
-
+fittiamo l'analisi della varianza inserendo il termine di interazione.
 We will perform an analysis of variance including a factor for the interaction between diet and supplement:
 
 ```{r}
 model<-aov(gain~diet*supplement, data = weights)
 summary(model)
 ```
-
+non c'è un effetto di interazione tra la dieta e l'integratore, anche se c'è almeno una dieta che funziona meglio delle altre.
 The ANOVA table shows that there is no hint of any interaction between the two
 explanatory variables (p=0.917): the effects of diet and supplement are additive.    
 
 Let's check for this graphically...
 
 ```{r}
+weights$diet <-as.factor(weights$diet)
 weights$diet <- relevel(weights$diet, ref="oats")
 with(weights, interaction.plot(diet,supplement, response = gain))
 ```
-
+abbiamo un picco in corrispondenza della dieta barley, indipendente dall'integratore, inoltre le rette sono quasi parallele tra loro. Se le interazioni fossero significative le rette si intersecherebbero tra di loro.
 
 Since interactions are not significant, we can consider simplifying our model:
-
+togliamo il termine di interazione poichè abbiamo visto non è significativa.
 ```{r}
 model2 <- aov(gain~diet + supplement, data = weights)
 summary(model2)
@@ -66,7 +67,7 @@ summary(model2)
 Which one is best?
 
 The second model is much simpler than the first one:
-
+"restituiscimi l'output dell'aNOVa come se avessi fatto un linear model"
 ```{r}
 summary.lm(model)
 ```
@@ -75,12 +76,12 @@ summary.lm(model)
 ```{r}
 summary.lm(model2)
 ```
-
+nel secondo modello , più semplice ho dimezzato il numero di parametri. Per decidere quale dei modelli è significativamente migliore è meglio confrontare le varianze
 We can compare them directly:
 ```{r}
 anova(model,model2)
 ```
-
+risultato; non c'è una differenza significativa di varianza tra i due modelli (pf 0.9166). Quindi "possiamo scegliere" il modello 2.
 The second model is simpler and it is not significantly worst than the first model, so we go for model2 and we try to interpret it.
 
 Go back and look again at the summary of model2:   
@@ -93,7 +94,7 @@ Let's check with a TukeyHSD test:
 ```{r}
 TukeyHSD(model2)
 ```
-
+guardiamo le differenze tra le diete. ci dà la conferma che barley è diverso da oaths e così per tutte le altre coppie.
 
 ```{r}
 plot(TukeyHSD(model2))
@@ -103,7 +104,7 @@ Other plots using the jtools package:
 ```{r}
 library(sjPlot)
 # plot_model(model2, type = "diag")
-plot_model(model2, type="eff")
+plot_model(model2, type="eff", terms=c("diet"))
 ```
 
 check here for an example with a significant interaction: https://cran.r-project.org/web/packages/jtools/vignettes/categorical.html
@@ -127,3 +128,5 @@ fitiris <- lm(Petal.Length ~ Petal.Width * Species, data = iris)
 library(jtools)
 plot_model(fitiris, type="int")
 ```
+
+nella specie "setosa" la lunghezza del petalo aumenta gradualmente con la larghezza del petalo, con versicolor l'aumento è più netto.

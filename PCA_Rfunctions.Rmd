@@ -23,7 +23,10 @@ res.prcomp$rotation
 biplot(res.prcomp, choices=3:4)
 
 ```
-
+seconda riga; proporzione di varianza catturata da PC1, PC2 etc..il grafico res.comp ci indica dove dobbiamo fermarci per le componenti principali da includere. Dove la barra diventa "piatta", vuol dire che anche aggiungiendo nuove componenti queste non aumentano significativamente la variabilità catturata.
+GRAFICO3; Sepal With è fortemente correlata alla PC2, le altre variabili sono maggiormente correlate alla PC1.
+PC1 è fortemente correlata alla lunghezza dei petali, secondariamente alla larghezza di essi e alla lunghezza dei sepali.
+proporzione cumulativa; se utilizziamo tre variabili catturiamo il 99% di variabilità del sistema
 The output contains the following values:
 
 * sdev = deviazioni standard delle componenti principali
@@ -33,7 +36,7 @@ The output contains the following values:
 * scale = come center, ma per la varianza di ciascuna variabile (se scale=TRUE)
 
 
-## princomp
+## princomp, scaliamo le variabili
 
 ```{r princomp}
 
@@ -52,7 +55,7 @@ plot(res.princomp)
 biplot(res.princomp)
 
 ```
-
+i risultati sono così più "cauti"
 L’oggetto (output) PCA1 è però diverso. Esso quindi contiene:
 
 * sdev = deviazioni standard delle componenti principali
