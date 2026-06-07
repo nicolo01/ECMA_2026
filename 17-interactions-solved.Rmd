@@ -44,7 +44,7 @@ We will perform an analysis of variance including a factor for the interaction b
 model<-aov(gain~diet*supplement, data = weights)
 summary(model)
 ```
-non c'è un effetto di interazione tra la dieta e l'integratore, anche se c'è almeno una dieta che funziona meglio delle altre.
+non c'è un effetto di interazione tra la dieta e l'integratore (supplemento), anche se c'è almeno una dieta che funziona meglio delle altre.
 The ANOVA table shows that there is no hint of any interaction between the two
 explanatory variables (p=0.917): the effects of diet and supplement are additive.    
 

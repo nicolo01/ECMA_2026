@@ -77,7 +77,7 @@ sotto vediamo un altro modo con cui possiamo scrivere l'analisi della varianza.
 ```{r}
 anova(lm(yields ~ soil.type, data=dati.new))
 ```
-
+vediamo che è la stessa analisi poichè mi viene restituito lo stesso valore di P.
 ## Graphically check for the assumptions
 vediamo un check completo di tutti gli assunti dell'analisi della varianza.
 ```{r}
@@ -98,7 +98,7 @@ summary(mod)
 ```
 l''output del modello lm mi dà un pò più di dettaglio, dicendomi che il soil type loam è quasi significativamente diverso rispetto a clay, che è stata inglobata nell'intercetta del modello (
 )il primo livello in ordine alfabetico viene inglobato da R.
-quindi adesso voglio fare un relevel per ordinare i dati in maniera strategica per confrotnare la resa di sand con loam anche.
+quindi adesso voglio fare un relevel per ordinare i dati in maniera strategica per confrontare la resa di sand con loam anche.
 ```{r}
 dati.relevel <- dati.new
 dati.relevel$soil.type <-as.factor(dati.relevel$soil.type) #devo dire a R che la colonna soil type è un fattore e non un carattere, poi posso rilevellarlo. comando "class" x controllare.

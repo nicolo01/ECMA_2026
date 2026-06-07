@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## prcomp
 
 ```{r prcomp}
-
+rm(list = ls())
 res.prcomp <- prcomp(iris[,-5])
 summary(res.prcomp)
 # compare to:
@@ -80,7 +80,6 @@ varimax(res.princomp$loadings[,1:2])
 
 library(FactoMineR)
 library(factoextra)
-
 ```
 
 
