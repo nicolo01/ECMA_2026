@@ -1,0 +1,322 @@
+---
+title: "Clustering e NMDS delle minacce IUCN"
+subtitle: "Una lezione pratica di ecologia statistica"
+author: "Valentina La Morgia"
+date: last-modified
+format: 
+  revealjs:
+    theme: [default]
+    width: 1600
+    height: 900
+    smaller: true
+    logo: "https://www.r-project.org/logo/Rlogo.png"
+    footer: "Lezione: Clustering e NMDS - Analisi IUCN"
+    chalkboard: true
+    slide-number: true
+    code-line-numbers: true
+    preview-links: auto
+execute:
+  echo: true
+  eval: true
+  warning: false
+  message: false
+---
+
+## Obiettivo della Lezione
+
+Raggruppare le specie alpine non per tassonomia, ma per il loro **profilo di minaccia**.
+
+1.  **Esplorazione:** Capire la distribuzione del rischio tra le specie.
+2.  **Distanza:** Calcolare la disimilarità (Bray-Curtis).
+3.  **Clustering:** Identificare i gruppi di specie in base alle minacce (PAM).
+4.  **Ordinamento:** Visualizzare i risultati (NMDS).
+
+Come primo step, dobbiamo pulire i dati e selezionare le nostre specie "indicatrici".
+
+```{r}
+#| label: setup
+#| include: false
+library(readxl)
+library(tidyverse)
+library(vegan)        # Per NMDS e Bray-Curtis
+library(cluster)      # Per PAM
+library(factoextra)   # Per visualizzazione cluster
+library(ggpubr)       # Per grafici adatti alla pubblicazione scientifica
+library(hrbrthemes)   # Per migliorare la grafica
+library(ggrepel)      # Per etichette non sovrapposte
+library(patchwork)    # Per combinare grafici tra loro
+
+# NOTA: Assicurati che i percorsi dei file siano corretti rispetto alla posizione di questa slide
+df <- read_excel("data/species_mapped_threats_ranks.xlsx")
+load("data/eusalp_species.RData")
+```
+
+
+# 1. Preparazione dei Dati {background-color="#003366"}
+
+## Selezione delle Specie
+
+Filtriamo il dataset per includere specie indicatrici (Lupo, Stambecco, Orso, ecc.).
+
+```{r}
+indicator_species <- c(  "Rupicapra rupicapra", "Capra ibex", "Marmota marmota",
+                         "Muscardinus avellanarius", "Lepus timidus", "Eptesicus nilssonii",
+                         "Rhinolophus hipposideros", "Ursus arctos", "Canis lupus",
+                         "Canis aureus", "Sciurus vulgaris")
+
+selected_species <- c(eusalp_species, indicator_species)
+
+# Filter and select relevant columns
+df_selected <- df %>%
+  filter(species %in% selected_species) %>% 
+  select(species, IUCN_Threat_group_desc, rank) %>%
+  drop_na()
+head(df_selected)
+```
+
+## Esplorazione: Boxplot
+
+È fondamentale capire la distribuzione dei dati prima di procedere.
+
+```{r}
+ggplot(df_selected, aes(x = IUCN_Threat_group_desc, y = rank)) +
+  geom_boxplot() +
+  coord_flip() +
+  theme_ipsum() +
+  labs(title = "Distribuzione dei Rank di Minaccia")
+
+```
+
+::: {.notes}
+Noterete che alcune minacce hanno valori molto alti (outlier) mentre molte altre sono a zero. Questo ci obbliga a scalare i dati.
+:::
+
+# 2. Distanze e Algoritmo {background-color="#008080"}
+
+## Normalizzazione (Min-Max)
+
+Per evitare che una minaccia "domini" le altre solo per la scala numerica.
+
+```{r}
+# ---- Create species x threat matrix ----
+data_matrix <- df_selected %>%
+  group_by(species, IUCN_Threat_group_desc) %>%
+  summarise(rank = sum(rank), .groups = "drop") %>% 
+  pivot_wider(names_from = IUCN_Threat_group_desc, values_from = rank, values_fill = 0)
+
+data_matrix_numeric <- as.matrix(data_matrix[,-1])
+rownames(data_matrix_numeric) <- data_matrix$species
+
+data_scaled <- apply(data_matrix_numeric, 2, 
+                     function(x) (x - min(x)) / (max(x) - min(x)))
+
+```
+
+## Perché Bray-Curtis + PAM (K-medoids)?
+
+In ecologia, non usiamo la distanza Euclidea se abbiamo molti zeri.
+
+* **Euclidea:** Considera le "doppie assenze" come somiglianza.
+* **Bray-Curtis:** Si concentra su ciò che le specie *hanno in comune*.
+
+```{r}
+dist_bray <- vegdist(data_scaled, method = "bray")
+dist_matrix <- dist_bray
+```
+
+<br>
+
+Il K-means usa le medie (centroidi). Il PAM usa **esemplari reali** (medoidi).
+
+::: {.callout-tip}
+
+## Vantaggio
+
+Il PAM è molto più robusto agli outlier che abbiamo visto nel boxplot iniziale.
+:::
+
+# 3. Quanti Cluster? {background-color="#7a49a5"}
+
+## Metodi Statistici
+
+Valutiamo l' "Elbow" e la "Silhouette" per scegliere $k$.
+
+```{r}
+fcl_sil <- fviz_nbclust(as.matrix(dist_bray), pam, method = "silhouette")
+plot(fcl_sil)
+
+```
+
+* **Silhouette:** Misura quanto una specie è simile al suo cluster rispetto agli altri.
+* **Decisione:** Anche se il picco è a 3, sceglieremo **k = 2** per una separazione biologica più chiara.
+
+
+# 4. PAM clustering
+
+```{r}
+# ---- Run PAM clustering ----
+pam_result <- pam(dist_matrix, k = 2)
+
+# Inspect results
+pam_result$clustering       # cluster assignment for each species
+pam_result$medoids          # the species that are medoids (cluster representatives)
+```
+
+
+## Plot del PAM clustering
+
+```{r}
+# Plot
+clusplot(pam_result, main = "PAM clustering", color = TRUE, shade = TRUE, labels = 2)
+data_matrix$cluster <- as.factor(pam_result$clustering)
+
+# ---- Join cluster id with original data ----
+results <- left_join(df_selected, dplyr::select(data_matrix, species, cluster)) %>% 
+  arrange(cluster)
+```
+
+
+# 5. Ordinamento NMDS {background-color="#cf4444"}
+
+## Visualizzare in 2 Dimensioni
+
+L'NMDS schiaccia la nostra matrice complessa in uno spazio 2D facile da leggere.
+
+```{r}
+set.seed(1)
+nmds_res <- metaMDS(dist_bray, k = 2, trymax = 100)
+
+# Calcolo vettori ambientali (Minacce)
+envfit_threats <- envfit(nmds_res, data_matrix_numeric, permutations = 999)
+
+```
+
+## Interpretazione del Grafico
+
+* **Punti:** Specie. Se sono vicine, hanno minacce simili.
+* **Ellissi:** Il "cuore" dei due cluster.
+* **Frecce:** Direzione delle minacce. Una freccia lunga indica una minaccia che "spiega" bene la differenza tra le specie.
+
+```{r}
+# ---- NMDS ----
+medoid_species <- c("Nyctalus leisleri", "Lepus timidus")
+indicator_species <- c(  "Rupicapra rupicapra", "Capra ibex", "Marmota marmota",
+                         "Muscardinus avellanarius",
+                         "Lepus timidus",
+                         "Eptesicus nilssonii",
+                         "Rhinolophus hipposideros", "Ursus arctos", "Canis lupus",
+                         "Canis aureus", "Sciurus vulgaris")
+nmds_points <- as.data.frame(nmds_res$points)
+nmds_points$species <- rownames(data_matrix)
+nmds_points$cluster <- data_matrix$cluster
+nmds_points %>% 
+  mutate(species_name = row.names(.)) -> nmds_points
+```
+
+```{r echo=FALSE}
+# ---- Plot NMDS with clusters, highlighting key species
+
+label_medoids <- nmds_points %>% 
+  filter(row.names(.) %in% medoid_species)
+label_indicators <- nmds_points %>% 
+  filter(row.names(.) %in% indicator_species)
+
+library(ggrepel)
+ggplot(nmds_points, aes(MDS1, MDS2, color = cluster)) +
+  geom_point(
+    size = 3,
+    aes(),  # keep color inside aes
+    alpha = ifelse(nmds_points$species_name %in% medoid_species, 1, 0.5)
+  ) +
+  stat_ellipse() +
+  geom_text(
+    data = label_medoids,
+    aes(x = MDS1, y = MDS2, label = species_name),
+    hjust = 1,            # Align to the left edge of the text (places to the right of point)
+    nudge_x = -0.05,       # Optional: slight nudge to avoid overlap
+    size = 3,
+    fontface = "bold"
+  ) +
+  # geom_text_repel(data = label_medoids, aes(label = species_name),
+  #                 fontface = "bold", size = 3, max.overlaps = 20) +
+  geom_text(
+    data = label_indicators,
+    aes(x = MDS1, y = MDS2, label = species_name),
+    hjust = 1,            # Align to the right edge of the text (places to the left of point)
+    nudge_x = -0.05,       # Optional: slight nudge to avoid overlap
+    size = 3,
+    fontface = "italic"
+  ) +
+  # geom_text_repel(data = label_indicators, aes(label = species_name),
+  #                 fontface = "italic", size = 3, max.overlaps = 20) +
+  theme_minimal() +
+  labs(
+    title = "NMDS of species based on threats",
+    x = "Dimension 1",
+    y = "Dimension 2",
+    color = "Cluster"
+  )
+
+```
+
+
+
+```{r}
+# ---- Fit IUCN threat vectors to NMDS ----
+# Load required libraries
+library(vegan)
+library(ggplot2)
+library(ggrepel)
+library(grid)  # for unit()
+
+# Fit environmental vectors (threats) to NMDS
+envfit_threats <- envfit(nmds_res, data_matrix_numeric, permutations = 999)
+
+# Extract vector scores
+threat_vectors <- as.data.frame(scores(envfit_threats, display = "vectors"))
+threat_vectors$threat <- rownames(threat_vectors)
+
+# OPTIONAL: filter significant vectors only (p < 0.05)
+signif_threats <- as.data.frame(envfit_threats$vectors$pvals)
+signif_threats$threat <- rownames(signif_threats)
+signif_vectors <- merge(threat_vectors, signif_threats, by = "threat") %>%
+  filter(`envfit_threats$vectors$pvals` < 0.05)
+
+
+# ---- NMDS plot: Rescaled arrows for clarity ----
+# Set your desired scaling factor
+scaling_factor <- 2
+# Apply scaling to the significant threat vectors
+signif_vectors_scaled <- signif_vectors %>%
+  mutate(
+    NMDS1 = NMDS1 * scaling_factor,
+    NMDS2 = NMDS2 * scaling_factor
+  )
+# NMDS plot with longer arrows
+ggplot(nmds_points, aes(MDS1, MDS2, color = cluster)) +
+  geom_point(size = 3, alpha = 1) +
+  stat_ellipse() +
+  # Arrows for threats (scaled)
+  geom_segment(data = signif_vectors_scaled, aes(x = 0, y = 0, xend = NMDS1, yend = NMDS2),
+               arrow = arrow(length = unit(0.3, "cm")), color = "black", size = 0.6) +
+  # Threat labels just beyond arrow tips
+  geom_text(data = signif_vectors_scaled,
+            aes(x = NMDS1 * 1.05, y = NMDS2 * 1.05, label = threat),
+            color = "black", size = 3.5, fontface = "italic") +
+  theme_minimal() +
+  labs(
+    title = "NMDS of Species with Scaled IUCN Threat Vectors",
+    x = "Dimension 1",
+    y = "Dimension 2",
+    color = "Cluster"
+  )
+
+```
+
+## Conclusione
+
+
+1. Abbiamo trasformato dati grezzi IUCN in **profili ecologici**.
+2. Abbiamo scoperto che le specie alpine si dividono in due gruppi di rischio principali.
+3. Il **medoide** ci dà una specie "simbolo" per ogni gruppo di minaccia.
+

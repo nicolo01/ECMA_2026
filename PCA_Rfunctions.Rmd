@@ -74,7 +74,7 @@ varimax(res.princomp$loadings[,1:2])
 ```
 
 
-## FactoMineR
+## FactoMineR, ripartiamo da qui.
 
 ```{r factoextra}
 
@@ -92,13 +92,13 @@ sqrt(get_eig(res.pca)[,1]) # compare to summary(res.prcomp)
 
 # Visualize eigenvalues/variances
 fviz_eig(res.pca, addlabels=TRUE, hjust = -0.3)+
-  theme_minimal()
+  theme_minimal() #creiamo uno scree plot, che si basa sui risultati della PCA che ho appena fatto girare.
 
 # export all results in csv file
 write.infile(res.pca,file="my_FactoMineR_results.csv")
 
 ```
-
+get_eig cii dice la percentuale di varianza spiegata dagli assi., se aggiungo il secondo asse ad esempio arrivo al 96% di varianza spiegata. Il numero di dimensioni che ci viene restituito è pari al numero di variabili che avevamo all'inizio.
 
 ### Visualize results for variables
 
@@ -112,25 +112,25 @@ var$contrib
 colSums(var$contrib)
 # correlation of variables with the first 4 PC
 res.pca$var$cor[, 1:4]
-# axis characterization
-dimdesc(res.pca)
+# axis characterization, il p-value ci dice se la correlazione tra la nuova dimensione e le 
+dimdesc(res.pca) #variabili originarie è statisticamente significativa o meno.
 
 ```
 
-
+vediamo sopra il contributo che i diversi "Assi" danno alla PCA. Il secondo asse ha un forte contributo da parte del Sepal Width. Quindi il primo asse è fortemente legato al contributo di 3 variabili, ma ci manca l'informazione relativa alla quarta variabile, che è catturata dalla seconda componente. Vediamo quindi quanto ogni signola variabile originaria è correlata ai singoli assi della PCA.
 ```{r plots-variables}
 
 # Graph of variables: default plot
 fviz_pca_var(res.pca, col.var = "steelblue")
 # It’s possible to control variable colors using their contributions to the principal axes:
 # Control variable colors using their contributions
-# Use gradient color
+# Use gradient color, coloriamo rispetto al contributo delle variabili più importanti.
 fviz_pca_var(res.pca, col.var="contrib")+
 scale_color_gradient2(low="white", mid="blue", 
       high="red", midpoint = 25) +
 theme_minimal()
 
-# Variable contributions on axis 1
+# Variable contributions on axis 1, vediamo quali variabli hanno un contributo elevato.
 fviz_contrib(res.pca, choice="var", axes = 1 )+
   labs(title = "Contributions to Dim 1")
 # Variable contributions on axis 2
@@ -142,12 +142,12 @@ fviz_contrib(res.pca, choice="var", axes = 1:2)+
   labs(title = "Contributions to Dim 1+2")
 
 ```
-
+#nel primo grafico le variabili originarie vengono "plottate" come vettori. Tre delle variabili orginarie sono quasi parallele o comunque poco inclinate rispetto all'asse 1, cioè tali variabili stanno andando nella stessa direzione.
 
 ### Visualize results for individuals
 
 Especially usefull to consider additional variables excluded from PCA, eg categorical ones
-
+vediamo i singoli record nel nostro dataset. Come si collocano i nostri individui nel nuovo spazio delle componenti principali??. Cioè come posizionare i punti rispetto al nuovo sistema di riferimento.
 ```{r individuals}
 
 # Extract the results for individuals
@@ -179,7 +179,7 @@ p + scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9"))+
  theme_minimal()
 
 ```
-
+x il secondo grafico; ho usato le coordinate sopra per "determinare" la posizione degli "individui" nel nuovi sistema di riferimento. Ogni punto è un record della nostra tabella, e possiamo risalire a che dato si riferisce ciascun punto. Vediamo cioè come si dispongono questi nuovi individui nello spazio. Andiamo poi a colorare i punti sulla base della quinta colonna del dataset iris, che inizialmente non avevamo considerato in quanto considerava la specie. Coloriamo quindi in base alla specie consentendomi di vedere ad esempio che gli individui di setosa siano disposti sulla sinistra, mentre gli altri sono disposti verso destra e maggiormente sovrapposti. Gli individui di setosa sono distanti da quelli delle altre due specie in termini di diametro,
 
 ## Plot of individuals and variables
 
