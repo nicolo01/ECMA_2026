@@ -87,7 +87,7 @@ Likelihood: Multinomiale | Prior: Dirichlet
 
 ## L'Analisi del 2009
 
-### La Prior del 2009 
+### La Prior del 2008 
 
 Utilizziamo uno studio precedente (Scandura et al. 2008) come informazione a priori. La proporzione attesa è del 14% ($\theta \approx 0.14$), descritta da una distribuzione $\text{Beta}(9, 55)$.    
 
@@ -145,7 +145,9 @@ ggplot(d_2009, aes(x = theta, y = density)) +
        x = "Prevalenza di L. europaeus", y = "Densità") +
   theme_minimal()
 ```
+La densità indica quanto quel valore di p è compatibile con i dati e con il prior.
 
+Più la curva è alta in un punto, più quel valore di prevalenza è plausibile.
 ---
 
 ### Calcolo delle Probabilità (AUC con Spline)
@@ -222,7 +224,7 @@ ggplot(d_post_2009, aes(x = theta, y = density, color = distribution)) +
 ```
 
 ---
-In Valle Orco abbiamo un pò meno di 0.14, circa 0.12. Aggiungendo dati abbiamo aumentato la precisione della nostra stima. Stiamo accumulando conoscenza in modo trasparente, cercando di quantificare la mia convinzione pregressa.
+In Valle Orco abbiamo un pò meno di 0.14, circa 0.12. Aggiungendo dati abbiamo aumentato la precisione della nostra stima, riducendo l'incertezza. Stiamo accumulando conoscenza in modo trasparente, cercando di quantificare la mia convinzione pregressa.
 
 ## 2. La transizione al 2021
 
@@ -380,3 +382,6 @@ Da ricordare:
 - L'analisi è dinamica: la Posterior di oggi diventa la Prior di domani.
 
 - Risultati robusti: l'approccio Bayesiano sequenziale ha permesso di quantificare l'espansione spaziale della lepre europea riducendo l'incertezza tipica dei piccoli campionamenti.
+-extra; la curva viene costruita matematicamente come descrittrice dell'incertezza sul parametro che si sta stimando. Questo perchè il fatto di avere raccolto 9 fatte di lepre europea su 55 non rappresenta la vera proporzione della popolazione, cioè la prevalenza nella popolazione,  ma solo una stima. La curva dice:
+
+"Se considero tutti i possibili valori della prevalenza reale, alcuni sono molto compatibili con i dati osservati e altri molto poco."

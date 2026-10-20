@@ -64,7 +64,7 @@ indicator_species <- c(  "Rupicapra rupicapra", "Capra ibex", "Marmota marmota",
                          "Rhinolophus hipposideros", "Ursus arctos", "Canis lupus",
                          "Canis aureus", "Sciurus vulgaris")
 
-selected_species <- c(eusalp_species, indicator_species)
+selected_species <- c(indicator_species, eusalp_species)
 
 # Filter and select relevant columns
 df_selected <- df %>%
@@ -95,7 +95,7 @@ Noterete che alcune minacce hanno valori molto alti (outlier) mentre molte altre
 
 ## Normalizzazione (Min-Max)
 
-Per evitare che una minaccia "domini" le altre solo per la scala numerica.
+Per evitare che una minaccia "domini" le altre solo per la scala numerica. In questo modo portiamo ogni minaccia all'interno di un range 0-1
 
 ```{r}
 # ---- Create species x threat matrix ----
